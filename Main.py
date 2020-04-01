@@ -1,4 +1,4 @@
-from Classifier import Classifier
+from GaussianNaiveBayesClassifier import Classifier
 
 # Use hashmap to store frequency for each language
 # Use hashmap to store totalite de n-grams dedans for each language
@@ -9,7 +9,7 @@ from Classifier import Classifier
 
 
 def main():
-    nb = Classifier(0, 1, 0)
+    nb = Classifier(0, 3, 0)
     nb.train("practice")
     print("debug")
 
