@@ -8,7 +8,7 @@ class Classifier:
 
     def train(self):
         print("Start training!")
-        model = dict()
+        model = dict() ## hashmpa avec les n-gram et leur frequency
 
         for evidence in self.getTrainingSet():
             print(evidence)
