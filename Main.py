@@ -12,7 +12,7 @@ frequencyLanguageTable = dict()
 
 def main():
     nb = Classifier(0, 1, 0, "training.txt", "test.txt")
-    train(0, 2, "practice")
+    train(2, 1, "practice")
     print("debug")
 
 
@@ -41,21 +41,22 @@ def train(vocab, nGramSize, training_file):
         frequencyLanguageTable[language] = frequencyLanguageTable.get(language, 0) + 1
 
         for tweetWord in words[3:]:
+            if vocab == 0:
+                tweetWord = tweetWord.lower()
+
             listOfChar = list(tweetWord)
             for index in range(0, listOfChar.__len__()):
                 char: str = listOfChar[index]
-                if vocab == 0:
-                    char = char.lower()
 
                 if is_in_vocab(vocab, char):
                     nGram: str = char
                     if nGramSize == 2:
                         if not ((index + 1) < listOfChar.__len__() and is_in_vocab(vocab, listOfChar[index + 1])):
-                            break
+                            continue
                         nGram += str(listOfChar[index + 1])
                     elif nGramSize == 3:
                         if not ((index + 2) < listOfChar.__len__() and is_in_vocab(vocab, listOfChar[index + 1]) and is_in_vocab(vocab, listOfChar[index + 2])):
-                            break
+                            continue
                         nGram += str(listOfChar[index + 1]) + str(listOfChar[index + 2])
 
 
