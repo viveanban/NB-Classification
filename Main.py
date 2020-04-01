@@ -6,71 +6,15 @@ from Classifier import Classifier
 # need to remember total number of tweets
 # need number of n-grams per language
 
-languageModels = dict()
-frequencyLanguageTable = dict()
 
 
 def main():
-    nb = Classifier(0, 1, 0, "training.txt", "test.txt")
-    train(2, 1, "practice")
+    nb = Classifier(0, 1, 0)
+    nb.train("practice")
     print("debug")
 
 
-## TODO: improvement maybe? should do some checks on the file to ensure it's the correct format?
-def train(vocab, nGramSize, training_file):
-    # open file, get content
-    file = open(training_file, encoding='utf-8')
-    for line in file:
-        ## Verify line is not empty
-        if line.rstrip().__len__() == 0:
-            continue
 
-        ## Split line into words
-        words = line.split()
-
-        id = words[0]
-
-        ## Add language to map of all languages
-        language = words[2]
-        languageModel = languageModels.get(language, 0)
-
-        if languageModel == 0:
-            languageModels[language] = dict()
-
-        ## Update frequency table
-        frequencyLanguageTable[language] = frequencyLanguageTable.get(language, 0) + 1
-
-        for tweetWord in words[3:]:
-            if vocab == 0:
-                tweetWord = tweetWord.lower()
-
-            listOfChar = list(tweetWord)
-            for index in range(0, listOfChar.__len__()):
-                char: str = listOfChar[index]
-
-                if is_in_vocab(vocab, char):
-                    nGram: str = char
-                    if nGramSize == 2:
-                        if not ((index + 1) < listOfChar.__len__() and is_in_vocab(vocab, listOfChar[index + 1])):
-                            continue
-                        nGram += str(listOfChar[index + 1])
-                    elif nGramSize == 3:
-                        if not ((index + 2) < listOfChar.__len__() and is_in_vocab(vocab, listOfChar[index + 1]) and is_in_vocab(vocab, listOfChar[index + 2])):
-                            continue
-                        nGram += str(listOfChar[index + 1]) + str(listOfChar[index + 2])
-
-
-                    languageModels.get(language)[nGram] = dict(languageModels[language]).get(nGram, 0) + 1
-    file.close()
-
-
-def is_in_vocab(vocab: int, char: str) -> bool:
-    if vocab == 0:
-        return 97 <= ord(char) <= 122
-    elif vocab == 1:
-        return 97 <= ord(char) <= 122 or 65 <= ord(char) <= 90
-    elif vocab == 2:
-        return str(char).isalpha()
 
 
 main()
