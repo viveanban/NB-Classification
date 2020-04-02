@@ -3,7 +3,9 @@ from pathlib import Path
 nb_correct_guesses = 0
 nb_total_guesses = 0
 
-languages = {"es", "eu", "fr", "gl", "en", "pt"}
+#TODO: Generate those languages automatically, not hardcoded
+
+languages = {"es", "eu", "ca", "gl", "en", "pt"}
 true_pos = dict()
 false_pos = dict()
 false_neg = dict()
