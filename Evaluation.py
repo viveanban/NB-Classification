@@ -20,6 +20,7 @@ class Evaluation:
         self.compute_accuracy(nb_correct_guesses, nb_total_guesses)
         self.compute_precision()
         self.compute_recall()
+        self.compute_per_class_F1()
         self.eval_file.close()
 
 
@@ -57,17 +58,34 @@ class Evaluation:
     def compute_precision(self):
         result = ""
         for lang in languages:
-            precision = 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (true_pos.get(lang, 0) + false_pos.get(lang,0))
+            precision = self.get_precision_for_language(lang)
             result += f'{precision}-{lang} '
 
         result = result.rstrip()
         self.eval_file.write(result + "\n")
 
+    def get_precision_for_language(self, lang):
+        return 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (true_pos.get(lang, 0) + false_pos.get(lang,0))
+
     def compute_recall(self):
         result = ""
         for lang in languages:
-            recall = 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (true_pos.get(lang, 0) + false_neg.get(lang, 0))
+            recall = self.get_recall_for_language(lang)
             result += f'{recall}-{lang}  '
+
+        result = result.rstrip()
+        self.eval_file.write(result + "\n")
+
+    def get_recall_for_language(self, lang):
+        return 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (true_pos.get(lang, 0) + false_neg.get(lang, 0))
+
+    def compute_per_class_F1(self):
+        result = ""
+        for lang in languages:
+            recall = self.get_recall_for_language(lang)
+            precision = self.get_precision_for_language(lang)
+            f1 = 0 if (precision+recall is 0) else (2*precision*recall)/(precision+recall)
+            result += f'{f1}-{lang}  '
 
         result = result.rstrip()
         self.eval_file.write(result + "\n")
