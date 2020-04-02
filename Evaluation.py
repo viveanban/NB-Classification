@@ -3,6 +3,9 @@ from pathlib import Path
 nb_correct_guesses = 0
 nb_total_guesses = 0
 
+correct_guesses_per_language = dict()
+total_guesses_per_language = dict()
+
 
 class Evaluation:
 
@@ -13,7 +16,9 @@ class Evaluation:
         self.eval_file = open(file_name, "w+")
         self.read_trace_file(trace_file)
         self.compute_accuracy(nb_correct_guesses, nb_total_guesses)
+        self.compute_precision()
         self.eval_file.close()
+
 
     def read_trace_file(self, trace_file: str):
         global nb_correct_guesses
@@ -24,10 +29,21 @@ class Evaluation:
             if line.rstrip().__len__() == 0:
                 continue
 
+            # Accuracy
             nb_total_guesses += 1
 
-            if line.split()[4].__eq__("correct"):
+            line_elements = line.split()
+
+            total_guesses_per_language[line_elements[1]] = total_guesses_per_language.get(line_elements[1], 0) + 1
+
+            if line_elements[4].__eq__("correct"):
                 nb_correct_guesses += 1
+                correct_guesses_per_language[line_elements[1]] = correct_guesses_per_language.get(line_elements[1], 0) + 1
+
+
+
+
+
 
         file.close()
 
@@ -37,6 +53,13 @@ class Evaluation:
         self.eval_file.write(f'{accuracy}\n')
 
     def compute_precision(self):
+        result = ""
+        for lang in total_guesses_per_language:
+            precision = correct_guesses_per_language[lang] / total_guesses_per_language[lang]
+            result += f'{precision}  '
+
+        result = result.rstrip()
+        self.eval_file.write(result)
         pass
 
     def compute_recall(self):
