@@ -44,8 +44,8 @@ class Evaluation:
                 true_pos[correct_language] = true_pos.get(line_elements[1], 0) + 1
                 nb_correct_guesses += 1
             else:
-                false_neg[correct_language] = false_neg.get(line_elements[1], 0) + 1
-                false_pos[guessed_language] = false_pos.get(line_elements[1], 0) + 1
+                false_neg[correct_language] = false_neg.get(correct_language, 0) + 1
+                false_pos[guessed_language] = false_pos.get(guessed_language, 0) + 1
 
         file.close()
 
