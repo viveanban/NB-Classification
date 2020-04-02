@@ -7,7 +7,6 @@ language_frequency = dict()
 total_nb_of_tweets = 0
 total_ngram_freq_in_lang = dict()
 
-
 class Classifier:
 
     def __init__(self, vocab, nGram_size, smoothing_value):
@@ -28,13 +27,11 @@ class Classifier:
         # open file, get content
         file = open(training_file, encoding='utf-8')
         for line in file:
-            # Verify line is not empty
             if line.rstrip().__len__() == 0:
                 continue
 
             total_nb_of_tweets += 1
 
-            # Split line into words
             words = line.split()
 
             # Add language to map of all languages
@@ -52,8 +49,7 @@ class Classifier:
 
             # Update the language model
             for ngram in ngram_list:
-                ngram_frequency_per_language[language][ngram] = dict(ngram_frequency_per_language[language]).get(ngram,
-                                                                                                                 0) + 1
+                ngram_frequency_per_language[language][ngram] = dict(ngram_frequency_per_language[language]).get(ngram,0) + 1
 
         file.close()
 
