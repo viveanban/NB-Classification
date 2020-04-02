@@ -18,6 +18,9 @@ class Classifier:
         file_name = f'Outputs/trace_{self.vocab}_{self.nGram_size}_{self.smoothing_value}.txt'
         self.trace_file = open(file_name, "w+")
 
+        file_name = f'Outputs/eval_{self.vocab}_{self.nGram_size}_{self.smoothing_value}.txt'
+        self.eval_file = open(file_name, "w+")
+
     def train(self, training_file):
 
         global ngram_frequency_per_language
@@ -78,7 +81,7 @@ class Classifier:
             guessed_language = max(all_scores, key=all_scores.get)
             score = all_scores[guessed_language]
 
-            self.create_output(id, guessed_language, score, correct_language)
+            self.trace_output(id, guessed_language, score, correct_language)
 
         file.close()
         self.trace_file.close()
@@ -161,7 +164,10 @@ class Classifier:
         elif self.vocab == 2:
             return math.pow(116766, self.nGram_size)
 
-    def create_output(self, id, label, score, correct_label):
-        annotation = "correct" if label.__eq__(correct_label) else "wrong"
-        result = f'{id}  {label}  {score}  {correct_label}  {annotation}\n'
+    def trace_output(self, id, guessed_label, score, correct_label):
+        annotation = "correct" if guessed_label.__eq__(correct_label) else "wrong"
+        result = f'{id}  {guessed_label}  {score}  {correct_label}  {annotation}\n'
         self.trace_file.write(result)
+
+    def eval_output(self):
+        pass
