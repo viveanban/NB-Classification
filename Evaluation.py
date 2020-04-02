@@ -7,7 +7,9 @@ languages = {"es", "eu", "fr", "gl", "en", "pt"}
 true_pos = dict()
 false_pos = dict()
 false_neg = dict()
-
+f1_per_language = dict()
+precision_per_language = dict()
+recall_per_language = dict()
 
 class Evaluation:
 
@@ -22,6 +24,7 @@ class Evaluation:
         self.compute_recall()
         self.compute_per_class_F1()
         self.compute_macro_f1()
+        self.compute_weighted_f_1()
         self.eval_file.close()
 
 
@@ -60,6 +63,7 @@ class Evaluation:
         result = ""
         for lang in languages:
             precision = self.get_precision_for_language(lang)
+            precision_per_language[lang] = precision
             result += f'{precision}-{lang} '
 
         result = result.rstrip()
@@ -72,6 +76,7 @@ class Evaluation:
         result = ""
         for lang in languages:
             recall = self.get_recall_for_language(lang)
+            recall_per_language[lang] = recall
             result += f'{recall}-{lang}  '
 
         result = result.rstrip()
@@ -84,14 +89,15 @@ class Evaluation:
         result = ""
         for lang in languages:
             f1 = self.get_f_1_for_language(lang)
+            f1_per_language[lang] = f1
             result += f'{f1}-{lang}  '
 
         result = result.rstrip()
         self.eval_file.write(result + "\n")
 
     def get_f_1_for_language(self, lang):
-        recall = self.get_recall_for_language(lang)
-        precision = self.get_precision_for_language(lang)
+        recall = recall_per_language.get(lang, 0)
+        precision = precision_per_language.get(lang, 0)
         f1 = 0 if (precision + recall is 0) else (2 * precision * recall) / (precision + recall)
         return f1
 
@@ -99,10 +105,20 @@ class Evaluation:
         result = ""
         macro_f1 = 0
         for lang in languages:
-            macro_f1 += self.get_f_1_for_language(lang)
+            macro_f1 += f1_per_language.get(lang, 0)
 
         macro_f1 = macro_f1/len(languages)
-        result += f'{macro_f1}-{lang}'
+        result += f'{macro_f1}'
+        self.eval_file.write(result + "  ")
+
+    def compute_weighted_f_1(self):
+        result = ""
+        weighted_f1 = 0
+        for lang in languages:
+            weighted_f1 += (true_pos.get(lang, 0)+false_neg.get(lang, 0))*(f1_per_language.get(lang, 0))
+
+        weighted_f1 = weighted_f1 / nb_total_guesses
+        result += f'{weighted_f1}'
         self.eval_file.write(result + "\n")
 
     def computer_f1_measure(self):
