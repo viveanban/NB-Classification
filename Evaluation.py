@@ -3,8 +3,10 @@ from pathlib import Path
 nb_correct_guesses = 0
 nb_total_guesses = 0
 
-correct_guesses_per_language = dict()
-total_guesses_per_language = dict()
+languages = {"es", "eu", "fr", "gl", "en", "pt"}
+true_pos = dict()
+false_pos = dict()
+false_neg = dict()
 
 
 class Evaluation:
@@ -17,6 +19,7 @@ class Evaluation:
         self.read_trace_file(trace_file)
         self.compute_accuracy(nb_correct_guesses, nb_total_guesses)
         self.compute_precision()
+        self.compute_recall()
         self.eval_file.close()
 
 
@@ -33,17 +36,16 @@ class Evaluation:
             nb_total_guesses += 1
 
             line_elements = line.split()
+            guessed_language = line_elements[1]
+            correct_language = line_elements[3]
+            isCorrect = True if line_elements[4].__eq__("correct") else False
 
-            total_guesses_per_language[line_elements[1]] = total_guesses_per_language.get(line_elements[1], 0) + 1
-
-            if line_elements[4].__eq__("correct"):
+            if isCorrect:
+                true_pos[correct_language] = true_pos.get(line_elements[1], 0) + 1
                 nb_correct_guesses += 1
-                correct_guesses_per_language[line_elements[1]] = correct_guesses_per_language.get(line_elements[1], 0) + 1
-
-
-
-
-
+            else:
+                false_neg[correct_language] = false_neg.get(line_elements[1], 0) + 1
+                false_pos[guessed_language] = false_pos.get(line_elements[1], 0) + 1
 
         file.close()
 
@@ -54,16 +56,21 @@ class Evaluation:
 
     def compute_precision(self):
         result = ""
-        for lang in total_guesses_per_language:
-            precision = correct_guesses_per_language[lang] / total_guesses_per_language[lang]
-            result += f'{precision}  '
+        for lang in languages:
+            precision = 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (true_pos.get(lang, 0) + false_pos.get(lang,0))
+            result += f'{precision}-{lang} '
 
         result = result.rstrip()
-        self.eval_file.write(result)
-        pass
+        self.eval_file.write(result + "\n")
 
     def compute_recall(self):
-        pass
+        result = ""
+        for lang in languages:
+            recall = 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (true_pos.get(lang, 0) + false_neg.get(lang, 0))
+            result += f'{recall}-{lang}  '
+
+        result = result.rstrip()
+        self.eval_file.write(result + "\n")
 
     def computer_f1_measure(self):
         pass
