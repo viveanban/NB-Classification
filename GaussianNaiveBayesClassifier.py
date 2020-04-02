@@ -1,6 +1,5 @@
-# TODO: Remember to consider the size of V (e.g V=0, size_v = 26, V=1, size_v1 = 26*2, V=2, size_v2 = isalpha + 26*2)
-from nltk import ngrams
 import math
+from pathlib import Path
 
 # Variable Declaration
 ngram_frequency_per_language = dict()
@@ -15,6 +14,10 @@ class Classifier:
         self.vocab = vocab
         self.nGram_size = nGram_size
         self.smoothing_value = smoothing_value
+
+        Path("Outputs").mkdir(parents=True, exist_ok=True)
+        file_name = f'Outputs/trace_{self.vocab}_{self.nGram_size}_{self.smoothing_value}.txt'
+        self.trace_file = open(file_name, "w+")
 
     def train(self, training_file):
 
@@ -67,11 +70,9 @@ class Classifier:
         # open file, get content
         file = open(test_file, encoding='utf-8')
         for line in file:
-            ## Verify line is not empty
             if line.rstrip().__len__() == 0:
                 continue
 
-            ## Split line into words
             words = line.split()
 
             id = words[0]
@@ -84,6 +85,7 @@ class Classifier:
             self.create_output(id, guessed_language, score, correct_language)
 
         file.close()
+        self.trace_file.close()
 
     def get_all_nb_scores_for_tweet(self, tweet_list: str):
         all_scores = dict()
@@ -165,4 +167,5 @@ class Classifier:
 
     def create_output(self, id, label, score, correct_label):
         annotation = "correct" if label.__eq__(correct_label) else "wrong"
-        print(f'{id}  {label}  {score}  {correct_label}  {annotation}')
+        result = f'{id}  {label}  {score}  {correct_label}  {annotation}\n'
+        self.trace_file.write(result)
