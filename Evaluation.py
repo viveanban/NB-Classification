@@ -21,6 +21,7 @@ class Evaluation:
         self.compute_precision()
         self.compute_recall()
         self.compute_per_class_F1()
+        self.compute_macro_f1()
         self.eval_file.close()
 
 
@@ -82,12 +83,26 @@ class Evaluation:
     def compute_per_class_F1(self):
         result = ""
         for lang in languages:
-            recall = self.get_recall_for_language(lang)
-            precision = self.get_precision_for_language(lang)
-            f1 = 0 if (precision+recall is 0) else (2*precision*recall)/(precision+recall)
+            f1 = self.get_f_1_for_language(lang)
             result += f'{f1}-{lang}  '
 
         result = result.rstrip()
+        self.eval_file.write(result + "\n")
+
+    def get_f_1_for_language(self, lang):
+        recall = self.get_recall_for_language(lang)
+        precision = self.get_precision_for_language(lang)
+        f1 = 0 if (precision + recall is 0) else (2 * precision * recall) / (precision + recall)
+        return f1
+
+    def compute_macro_f1(self):
+        result = ""
+        macro_f1 = 0
+        for lang in languages:
+            macro_f1 += self.get_f_1_for_language(lang)
+
+        macro_f1 = macro_f1/len(languages)
+        result += f'{macro_f1}-{lang}'
         self.eval_file.write(result + "\n")
 
     def computer_f1_measure(self):
