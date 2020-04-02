@@ -49,7 +49,8 @@ class Classifier:
 
             # Update the language model
             for ngram in ngram_list:
-                ngram_frequency_per_language[language][ngram] = dict(ngram_frequency_per_language[language]).get(ngram, 0) + 1
+                ngram_frequency_per_language[language][ngram] = dict(ngram_frequency_per_language[language]).get(ngram,
+                                                                                                                 0) + 1
 
         file.close()
 
@@ -75,38 +76,41 @@ class Classifier:
 
             id = words[0]
             correct_language = words[2]
-            ngram_list = self.get_ngrams_given_word_list(words[3:])
+            all_scores = self.get_all_nb_scores_for_tweet(words[3:])
 
-            for language in ngram_frequency_per_language:
-                nb_score = self.calculate_nb_score(words[3:], language)
+            guessed_language = max(all_scores, key=all_scores.get)
+            score = all_scores[guessed_language]
+
+            self.create_output(id, guessed_language, score, correct_language)
 
         file.close()
 
-    def get_most_likely_language(self, sentence: str):
-        result_map = dict()
+    def get_all_nb_scores_for_tweet(self, tweet_list: str):
+        all_scores = dict()
+
         for language in ngram_frequency_per_language:
-            result_map[language] = self.calculate_nb_score(sentence, language)
+            nb_score = self.calculate_nb_score(tweet_list, language)
+            all_scores[language] = nb_score
 
-        # some logic to return highest
+        return all_scores
 
-    def calculate_nb_score(self, tweet: str, lang: str):
+    def calculate_nb_score(self, tweet_list: list, lang: str):
         global total_nb_of_tweets
         global language_frequency
 
-        nGramFrequencies = ngram_frequency_per_language.get(lang)
-
-        prior_prob = math.log(self.prior_probability(lang), 10)
-        ngram_list = self.get_ngrams_given_word_list(tweet)
+        prior_prob = self.prior_probability(lang)
+        ngram_list = self.get_ngrams_given_word_list(tweet_list)
 
         conditional_prob = 0
         for ngram in ngram_list:
-            conditional_prob += math.log(self.getConditionalProbability(list(ngram), lang), 10)
+            conditional_prob += self.conditional_probability(ngram, lang)
 
         return prior_prob + conditional_prob
 
-    def prior_probability(self, lang:str):
+    def prior_probability(self, lang: str):
         global total_nb_of_tweets
-        return language_frequency[lang] / total_nb_of_tweets
+        prob = language_frequency[lang] / total_nb_of_tweets
+        return math.log(prob, 10) if prob > 0 else -math.inf
 
     def get_ngrams_given_word_list(self, tweet_list: list):
         ngram_list = list()
@@ -123,7 +127,8 @@ class Classifier:
                     continue
 
                 next_index = index + 1
-                while next_index <= len(word) - 1 and self.is_in_vocab(word[next_index]) and len(ngram) < self.nGram_size:
+                while next_index <= len(word) - 1 and self.is_in_vocab(word[next_index]) and len(
+                        ngram) < self.nGram_size:
                     char = word[next_index]
                     ngram += char
                     next_index += 1
@@ -133,12 +138,13 @@ class Classifier:
 
         return ngram_list
 
-    def getConditionalProbability(self, ngram, lang):
+    def conditional_probability(self, ngram, lang):
         # P(ngram| lang) = #ngram/total frequency in language
         frequency = ngram_frequency_per_language.get(lang).get(ngram, 0)
         total = total_ngram_freq_in_lang[lang]
-        return (frequency + self.smoothing_value) / (
+        prob = (frequency + self.smoothing_value) / (
                 total + self.total_ngrams_possible_in_vocab() * self.smoothing_value)
+        return math.log(prob, 10) if prob > 0 else -math.inf
 
     def sum_of_freq(self):
         global total_ngram_freq_in_lang
@@ -156,3 +162,7 @@ class Classifier:
             return math.pow(26 * 2, self.nGram_size)
         elif self.vocab == 2:
             return math.pow(116766, self.nGram_size)
+
+    def create_output(self, id, label, score, correct_label):
+        annotation = "correct" if label.__eq__(correct_label) else "wrong"
+        print(f'{id}  {label}  {score}  {correct_label}  {annotation}')
