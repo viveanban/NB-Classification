@@ -1,9 +1,12 @@
 # TODO: Remember to consider the size of V (e.g V=0, size_v = 26, V=1, size_v1 = 26*2, V=2, size_v2 = isalpha + 26*2)
 from nltk import ngrams
+import math
+
 # Variable Declaration
-nGram_frequency_per_language = dict()
+ngram_frequency_per_language = dict()
 language_frequency = dict()
 total_nb_of_tweets = 0
+total_ngram_freq_in_lang = dict()
 
 
 class Classifier:
@@ -15,67 +18,51 @@ class Classifier:
 
     def train(self, training_file):
 
-        global nGram_frequency_per_language
+        global ngram_frequency_per_language
         global language_frequency
         global total_nb_of_tweets
 
         # open file, get content
         file = open(training_file, encoding='utf-8')
         for line in file:
-            ## Verify line is not empty
+            # Verify line is not empty
             if line.rstrip().__len__() == 0:
                 continue
 
             total_nb_of_tweets += 1
 
-            ## Split line into words
+            # Split line into words
             words = line.split()
 
-            ## Add language to map of all languages
+            # Add language to map of all languages
             language = words[2]
-            languageModel = nGram_frequency_per_language.get(language, 0)
+            language_model = ngram_frequency_per_language.get(language, 0)
 
-            if languageModel == 0:
-                nGram_frequency_per_language[language] = dict()
+            if language_model == 0:
+                ngram_frequency_per_language[language] = dict()
 
-            ## Update frequency table
+            # Update frequency table
             language_frequency[language] = language_frequency.get(language, 0) + 1
 
-            for tweetWord in words[3:]:
-                if self.vocab == 0:
-                    tweetWord = tweetWord.lower()
+            # Extract the ngrams from the tweet
+            ngram_list = self.get_ngrams_given_word_list(words[3:])
 
-                listOfChar = list(tweetWord)
-                for index in range(0, listOfChar.__len__()):
-                    char: str = listOfChar[index]
+            # Update the language model
+            for ngram in ngram_list:
+                ngram_frequency_per_language[language][ngram] = dict(ngram_frequency_per_language[language]).get(ngram, 0) + 1
 
-                    if self.is_in_vocab(self.vocab, char):
-                        nGram: str = char
-                        if self.nGram_size == 2:
-                            if not ((index + 1) < listOfChar.__len__() and self.is_in_vocab(self.vocab,
-                                                                                            listOfChar[index + 1])):
-                                continue
-                            nGram += str(listOfChar[index + 1])
-                        elif self.nGram_size == 3:
-                            if not ((index + 2) < listOfChar.__len__() and self.is_in_vocab(self.vocab, listOfChar[
-                                index + 1]) and self.is_in_vocab(self.vocab, listOfChar[index + 2])):
-                                continue
-                            nGram += str(listOfChar[index + 1]) + str(listOfChar[index + 2])
-
-                        nGram_frequency_per_language.get(language)[nGram] = dict(
-                            nGram_frequency_per_language[language]).get(nGram, 0) + 1
-        a = nGram_frequency_per_language
         file.close()
 
-    def is_in_vocab(self, vocab: int, char: str) -> bool:
-        if vocab == 0:
+    def is_in_vocab(self, char: str) -> bool:
+        if self.vocab == 0:
             return 97 <= ord(char) <= 122
-        elif vocab == 1:
+        elif self.vocab == 1:
             return 97 <= ord(char) <= 122 or 65 <= ord(char) <= 90
-        elif vocab == 2:
+        elif self.vocab == 2:
             return str(char).isalpha()
 
     def test(self, test_file):
+        self.sum_of_freq()
         # open file, get content
         file = open(test_file, encoding='utf-8')
         for line in file:
@@ -88,39 +75,84 @@ class Classifier:
 
             id = words[0]
             correct_language = words[2]
+            ngram_list = self.get_ngrams_given_word_list(words[3:])
 
-            for tweetWord in words[3:]:
-                self.score(tweetWord)
+            for language in ngram_frequency_per_language:
+                nb_score = self.calculate_nb_score(words[3:], language)
+
         file.close()
 
     def get_most_likely_language(self, sentence: str):
         result_map = dict()
-        for language in nGram_frequency_per_language:
-            result_map[language] = self.calculate_naive_bayes_Score(sentence, language)
+        for language in ngram_frequency_per_language:
+            result_map[language] = self.calculate_nb_score(sentence, language)
 
-        #some logic to return highest
+        # some logic to return highest
 
-    def calculate_naive_bayes_Score(self, tweet: str, lang: str):
-        global total_nb_of_tweets;
+    def calculate_nb_score(self, tweet: str, lang: str):
+        global total_nb_of_tweets
         global language_frequency
 
-        nGramFrequencies = nGram_frequency_per_language.get(lang)
+        nGramFrequencies = ngram_frequency_per_language.get(lang)
 
-        nGramTest = self.get_ngram_given_tweet(tweet)
+        prior_prob = math.log(self.prior_probability(lang), 10)
+        ngram_list = self.get_ngrams_given_word_list(tweet)
 
-        priorProb = language_frequency[lang]/total_nb_of_tweets
+        conditional_prob = 0
+        for ngram in ngram_list:
+            conditional_prob += math.log(self.getConditionalProbability(list(ngram), lang), 10)
 
-        for ngram in nGramTest:
-            conditional_prob = self.getConditionalProbability(ngram, lang)
+        return prior_prob + conditional_prob
 
-    def get_ngram_given_tweet(self, tweet):
-        ngram = list()
-        for word in tweet.split():
-            ngram += ngrams(word, self.nGram_size)
-        return ngram
+    def prior_probability(self, lang:str):
+        global total_nb_of_tweets
+        return language_frequency[lang] / total_nb_of_tweets
+
+    def get_ngrams_given_word_list(self, tweet_list: list):
+        ngram_list = list()
+
+        for word in tweet_list:
+            if self.vocab == 0:
+                word = word.lower()
+
+            for index in range(0, len(word)):
+                char = word[index]
+                ngram = char
+
+                if not self.is_in_vocab(char):
+                    continue
+
+                next_index = index + 1
+                while next_index <= len(word) - 1 and self.is_in_vocab(word[next_index]) and len(ngram) < self.nGram_size:
+                    char = word[next_index]
+                    ngram += char
+                    next_index += 1
+
+                if len(ngram) == self.nGram_size:
+                    ngram_list.append(ngram)
+
+        return ngram_list
 
     def getConditionalProbability(self, ngram, lang):
-        frequency = nGram_frequency_per_language.get(lang).get(ngram, 0)
+        # P(ngram| lang) = #ngram/total frequency in language
+        frequency = ngram_frequency_per_language.get(lang).get(ngram, 0)
+        total = total_ngram_freq_in_lang[lang]
+        return (frequency + self.smoothing_value) / (
+                total + self.total_ngrams_possible_in_vocab() * self.smoothing_value)
 
+    def sum_of_freq(self):
+        global total_ngram_freq_in_lang
+        for lang in ngram_frequency_per_language:
+            language_ngram_map = ngram_frequency_per_language[lang]
+            total_occurence = 0
+            for ngram in language_ngram_map:
+                total_occurence += language_ngram_map[ngram]
+            total_ngram_freq_in_lang[lang] = total_occurence
 
-
+    def total_ngrams_possible_in_vocab(self):
+        if self.vocab == 0:
+            return math.pow(26, self.nGram_size)
+        elif self.vocab == 1:
+            return math.pow(26 * 2, self.nGram_size)
+        elif self.vocab == 2:
+            return math.pow(116766, self.nGram_size)
