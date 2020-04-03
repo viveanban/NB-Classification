@@ -1,11 +1,12 @@
 from pathlib import Path
+from GaussianNaiveBayesClassifier import Classifier
 
 nb_correct_guesses = 0
 nb_total_guesses = 0
 
 #TODO: Generate those languages automatically, not hardcoded
-
 languages = {"es", "eu", "ca", "gl", "en", "pt"}
+
 true_pos = dict()
 false_pos = dict()
 false_neg = dict()
@@ -15,12 +16,16 @@ recall_per_language = dict()
 
 class Evaluation:
 
-    def __init__(self, trace_file: str, vocab, nGram_size, smoothing_value):
+    def __init__(self, nb: Classifier):
+        print("Evaluation started")
         Path("Outputs").mkdir(parents=True, exist_ok=True)
 
-        file_name = f'Outputs/eval_{vocab}_{nGram_size}_{smoothing_value}.txt'
+        file_name = f'Outputs/eval_{nb.vocab}_{nb.nGram_size}_{nb.smoothing_value}.txt'
+        trace_file = nb.trace_file.name
         self.eval_file = open(file_name, "w+")
         self.read_trace_file(trace_file)
+
+        # TODO: Make sure to print the values with 4 significant figures
         self.compute_accuracy(nb_correct_guesses, nb_total_guesses)
         self.compute_precision()
         self.compute_recall()
@@ -28,6 +33,7 @@ class Evaluation:
         self.compute_macro_f1()
         self.compute_weighted_f_1()
         self.eval_file.close()
+        print("Evaluation complete")
 
 
     def read_trace_file(self, trace_file: str):
@@ -123,11 +129,3 @@ class Evaluation:
         result += f'{weighted_f1}'
         self.eval_file.write(result + "\n")
 
-    def computer_f1_measure(self):
-        pass
-
-    def compute_macro_f1_measure(self):
-        pass
-
-    def compute_weighted_avg_f1_measure(self):
-        pass

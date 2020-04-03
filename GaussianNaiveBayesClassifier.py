@@ -15,13 +15,12 @@ class Classifier:
         self.smoothing_value = smoothing_value
 
         Path("Outputs").mkdir(parents=True, exist_ok=True)
-        file_name = f'Outputs/trace_{self.vocab}_{self.nGram_size}_{self.smoothing_value}.txt'
-        self.trace_file = open(file_name, "w+")
-
-        file_name = f'Outputs/eval_{self.vocab}_{self.nGram_size}_{self.smoothing_value}.txt'
-        self.eval_file = open(file_name, "w+")
+        trace_file_name = f'Outputs/trace_{self.vocab}_{self.nGram_size}_{self.smoothing_value}.txt'
+        self.trace_file = open(trace_file_name, "w+")
 
     def train(self, training_file):
+
+        print("Training started")
 
         global ngram_frequency_per_language
         global language_frequency
@@ -55,6 +54,7 @@ class Classifier:
                 ngram_frequency_per_language[language][ngram] = dict(ngram_frequency_per_language[language]).get(ngram,0) + 1
 
         file.close()
+        print("Training complete")
 
     def is_in_vocab(self, char: str) -> bool:
         if self.vocab == 0:
@@ -65,6 +65,7 @@ class Classifier:
             return str(char).isalpha()
 
     def test(self, test_file):
+        print("Testing started")
         self.sum_of_freq()
         # open file, get content
         file = open(test_file, encoding='utf-8')
@@ -85,6 +86,7 @@ class Classifier:
 
         file.close()
         self.trace_file.close()
+        print("Testing complete")
 
     def get_all_nb_scores_for_tweet(self, tweet_list: str):
         all_scores = dict()
@@ -166,6 +168,7 @@ class Classifier:
 
     def trace_output(self, id, guessed_label, score, correct_label):
         annotation = "correct" if guessed_label.__eq__(correct_label) else "wrong"
+        # TODO: Make sure to print the score in scientific notation
         result = f'{id}  {guessed_label}  {score}  {correct_label}  {annotation}\n'
         self.trace_file.write(result)
 
