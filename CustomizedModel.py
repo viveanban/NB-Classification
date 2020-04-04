@@ -18,7 +18,7 @@ class CustomizedModel(GaussianNaiveBayesClassifier):
         for ngram in ngram_list:
             conditional_prob += self.conditional_probability(ngram, lang)
 
-        return prior_prob + conditional_prob
+        return self.frequency_of_words(lang, str)*(prior_prob + conditional_prob)
 
     def frequency_of_words(self, lang, sentence):
         count = {}
