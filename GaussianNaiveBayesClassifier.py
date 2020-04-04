@@ -1,5 +1,6 @@
 import math
 from pathlib import Path
+import string
 
 # Variable Declaration
 ngram_frequency_per_language = dict()
@@ -16,7 +17,7 @@ class Classifier:
 
         Path("Outputs").mkdir(parents=True, exist_ok=True)
         trace_file_name = f'Outputs/trace_{self.vocab}_{self.nGram_size}_{self.smoothing_value}.txt'
-        self.trace_file = open(trace_file_name, "w+")
+        self.trace_file = open(trace_file_name, "w+", encoding='utf-8')
 
     def train(self, training_file):
 
@@ -63,6 +64,8 @@ class Classifier:
             return 97 <= ord(char) <= 122 or 65 <= ord(char) <= 90
         elif self.vocab == 2:
             return str(char).isalpha()
+        elif self.vocab == 3:
+            return 97 <= ord(char) <= 122 or string.punctuation.__contains__(char)
 
     def test(self, test_file):
         print("Testing started")
@@ -119,7 +122,7 @@ class Classifier:
         ngram_list = list()
 
         for word in tweet_list:
-            if self.vocab == 0:
+            if self.vocab == 0 or self.vocab == 3:
                 word = word.lower()
 
             for index in range(0, len(word)):
@@ -165,6 +168,8 @@ class Classifier:
             return math.pow(26 * 2, self.nGram_size)
         elif self.vocab == 2:
             return math.pow(116766, self.nGram_size)
+        elif self.vocab == 3:
+            return math.pow(26 + 32, self.nGram_size)
 
     def trace_output(self, id, guessed_label, score, correct_label):
         annotation = "correct" if guessed_label.__eq__(correct_label) else "wrong"
