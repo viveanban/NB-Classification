@@ -8,6 +8,7 @@ language_frequency = dict()
 total_nb_of_tweets = 0
 total_ngram_freq_in_lang = dict()
 
+
 class Classifier:
 
     def __init__(self, vocab, nGram_size, smoothing_value):

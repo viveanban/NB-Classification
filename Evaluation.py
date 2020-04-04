@@ -4,7 +4,7 @@ from GaussianNaiveBayesClassifier import Classifier
 nb_correct_guesses = 0
 nb_total_guesses = 0
 
-#TODO: Generate those languages automatically, not hardcoded
+# TODO: Generate those languages automatically, not hardcoded
 languages = {"es", "eu", "ca", "gl", "en", "pt"}
 
 true_pos = dict()
@@ -13,6 +13,7 @@ false_neg = dict()
 f1_per_language = dict()
 precision_per_language = dict()
 recall_per_language = dict()
+
 
 class Evaluation:
 
@@ -34,7 +35,6 @@ class Evaluation:
         self.compute_weighted_f_1()
         self.eval_file.close()
         print("Evaluation complete")
-
 
     def read_trace_file(self, trace_file: str):
         global nb_correct_guesses
@@ -64,7 +64,7 @@ class Evaluation:
 
     def compute_accuracy(self, correct_guesses, total_guesses):
         # % of instances of the test algo correctly classifies
-        accuracy = correct_guesses/total_guesses
+        accuracy = correct_guesses / total_guesses
         self.eval_file.write(f'{accuracy}\n')
 
     def compute_precision(self):
@@ -78,7 +78,8 @@ class Evaluation:
         self.eval_file.write(result + "\n")
 
     def get_precision_for_language(self, lang):
-        return 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (true_pos.get(lang, 0) + false_pos.get(lang,0))
+        return 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (
+                    true_pos.get(lang, 0) + false_pos.get(lang, 0))
 
     def compute_recall(self):
         result = ""
@@ -91,7 +92,8 @@ class Evaluation:
         self.eval_file.write(result + "\n")
 
     def get_recall_for_language(self, lang):
-        return 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (true_pos.get(lang, 0) + false_neg.get(lang, 0))
+        return 0 if true_pos.get(lang, 0) == 0 else true_pos.get(lang, 0) / (
+                    true_pos.get(lang, 0) + false_neg.get(lang, 0))
 
     def compute_per_class_F1(self):
         result = ""
@@ -115,7 +117,7 @@ class Evaluation:
         for lang in languages:
             macro_f1 += f1_per_language.get(lang, 0)
 
-        macro_f1 = macro_f1/len(languages)
+        macro_f1 = macro_f1 / len(languages)
         result += f'{macro_f1}'
         self.eval_file.write(result + "  ")
 
@@ -123,9 +125,8 @@ class Evaluation:
         result = ""
         weighted_f1 = 0
         for lang in languages:
-            weighted_f1 += (true_pos.get(lang, 0)+false_neg.get(lang, 0))*(f1_per_language.get(lang, 0))
+            weighted_f1 += (true_pos.get(lang, 0) + false_neg.get(lang, 0)) * (f1_per_language.get(lang, 0))
 
         weighted_f1 = weighted_f1 / nb_total_guesses
         result += f'{weighted_f1}'
         self.eval_file.write(result + "\n")
-
