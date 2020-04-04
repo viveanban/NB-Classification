@@ -15,6 +15,7 @@ class Classifier:
         self.nGram_size = nGram_size
         self.smoothing_value = smoothing_value
 
+        # output file setup
         Path("Outputs").mkdir(parents=True, exist_ok=True)
         trace_file_name = f'Outputs/trace_{self.vocab}_{self.nGram_size}_{self.smoothing_value}.txt'
         self.trace_file = open(trace_file_name, "w+", encoding='utf-8')
@@ -30,6 +31,8 @@ class Classifier:
         # open file, get content
         file = open(training_file, encoding='utf-8')
         for line in file:
+
+            # check if empty line
             if line.rstrip().__len__() == 0:
                 continue
 
@@ -39,9 +42,11 @@ class Classifier:
 
             # Add language to map of all languages
             language = words[2]
+
             language_model = ngram_frequency_per_language.get(language, 0)
 
             if language_model == 0:
+
                 ngram_frequency_per_language[language] = dict()
 
             # Update frequency table
@@ -52,7 +57,8 @@ class Classifier:
 
             # Update the language model
             for ngram in ngram_list:
-                ngram_frequency_per_language[language][ngram] = dict(ngram_frequency_per_language[language]).get(ngram,0) + 1
+                ngram_frequency_per_language[language][ngram] = dict(ngram_frequency_per_language[language]).get(ngram,
+                                                                                                                 0) + 1
 
         file.close()
         print("Training complete")
@@ -122,10 +128,12 @@ class Classifier:
         ngram_list = list()
 
         for word in tweet_list:
+
             if self.vocab == 0 or self.vocab == 3:
                 word = word.lower()
 
             for index in range(0, len(word)):
+
                 char = word[index]
                 ngram = char
 
@@ -146,6 +154,7 @@ class Classifier:
 
     def conditional_probability(self, ngram, lang):
         # P(ngram| lang) = #ngram/total frequency in language
+
         frequency = ngram_frequency_per_language.get(lang).get(ngram, 0)
         total = total_ngram_freq_in_lang[lang]
         prob = (frequency + self.smoothing_value) / (
@@ -153,12 +162,15 @@ class Classifier:
         return math.log(prob, 10) if prob > 0 else -math.inf
 
     def sum_of_freq(self):
+
         global total_ngram_freq_in_lang
+
         for lang in ngram_frequency_per_language:
             language_ngram_map = ngram_frequency_per_language[lang]
             total_occurence = 0
             for ngram in language_ngram_map:
                 total_occurence += language_ngram_map[ngram]
+
             total_ngram_freq_in_lang[lang] = total_occurence
 
     def total_ngrams_possible_in_vocab(self):
