@@ -187,6 +187,7 @@ class Classifier:
     def trace_output(self, id, guessed_label, score, correct_label):
         annotation = "correct" if guessed_label.__eq__(correct_label) else "wrong"
         # TODO: Make sure to print the score in scientific notation
+        score = "{:.2E}".format(score)
         result = f'{id}  {guessed_label}  {score}  {correct_label}  {annotation}\n'
         self.trace_file.write(result)
 

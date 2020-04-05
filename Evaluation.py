@@ -65,14 +65,14 @@ class Evaluation:
     def compute_accuracy(self, correct_guesses, total_guesses):
         # % of instances of the test algo correctly classifies
         accuracy = correct_guesses / total_guesses
-        self.eval_file.write("{:.2E}".format(accuracy)+"\n")
+        self.eval_file.write("{:.4f}".format(accuracy)+"\n")
 
     def compute_precision(self):
         result = ""
         for lang in languages:
             precision = self.get_precision_for_language(lang)
             precision_per_language[lang] = precision
-            result += "{:.2E}".format(precision) + '  '
+            result += "{:.4f}".format(precision) + '  '
         result = result.rstrip()
         self.eval_file.write(result + "\n")
 
@@ -85,7 +85,7 @@ class Evaluation:
         for lang in languages:
             recall = self.get_recall_for_language(lang)
             recall_per_language[lang] = recall
-            result += "{:.2E}".format(recall) + '  '
+            result += "{:.4f}".format(recall) + '  '
 
         result = result.rstrip()
         self.eval_file.write(result + "\n")
@@ -99,7 +99,7 @@ class Evaluation:
         for lang in languages:
             f1 = self.get_f_1_for_language(lang)
             f1_per_language[lang] = f1
-            result += "{:.2E}".format(f1) + '  '
+            result += "{:.4f}".format(f1) + '  '
 
         result = result.rstrip()
         self.eval_file.write(result + "\n")
@@ -117,7 +117,7 @@ class Evaluation:
             macro_f1 += f1_per_language.get(lang, 0)
 
         macro_f1 = macro_f1 / len(languages)
-        self.eval_file.write("{:.2E}".format(macro_f1) + "  ")
+        self.eval_file.write("{:.4f}".format(macro_f1) + "  ")
 
     def compute_weighted_f_1(self):
         result = ""
@@ -126,5 +126,5 @@ class Evaluation:
             weighted_f1 += (true_pos.get(lang, 0) + false_neg.get(lang, 0)) * (f1_per_language.get(lang, 0))
 
         weighted_f1 = weighted_f1 / nb_total_guesses
-        result += "{:.2E}".format(weighted_f1)
+        result += "{:.4f}".format(weighted_f1)
         self.eval_file.write(result + "\n")
