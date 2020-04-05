@@ -1,6 +1,7 @@
-import GaussianNaiveBayesClassifier
+from GaussianNaiveBayesClassifier import Classifier
 
-class CustomizedModel(GaussianNaiveBayesClassifier):
+
+class CustomizedModel(Classifier):
 
     def __init__(self, vocab, nGram_size, smoothing_value):
         super().__init__(vocab, nGram_size, smoothing_value)
@@ -18,11 +19,11 @@ class CustomizedModel(GaussianNaiveBayesClassifier):
         for ngram in ngram_list:
             conditional_prob += self.conditional_probability(ngram, lang)
 
-        return self.frequency_of_words(lang, str)*(prior_prob + conditional_prob)
+        return self.frequency_of_words(lang, str) * (prior_prob + conditional_prob)
 
     def frequency_of_words(self, lang, sentence):
         count = {}
-        sentence = sentence.split()
+        sentence = sentence.split("")
 
         for i in sentence:
             if i in count:  # check if it exists in dictionary
@@ -33,6 +34,6 @@ class CustomizedModel(GaussianNaiveBayesClassifier):
         frequency = 0
 
         for clue in self.cluesDb[lang]:
-            frequency += count[clue]
+            frequency += count.get(clue, 0)
 
         return frequency
