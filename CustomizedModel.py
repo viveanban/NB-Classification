@@ -33,7 +33,8 @@ class CustomizedModel(Classifier):
 
         frequency = 0
 
-        for clue in self.cluesDb[lang]:
-            frequency += count.get(clue, 0)
+        for lang in self.cluesDb:
+            for clue in self.cluesDb[lang]:
+                frequency += count.get(clue, 0)
 
         return frequency
