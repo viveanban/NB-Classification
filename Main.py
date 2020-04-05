@@ -13,8 +13,8 @@ def main():
     training_file = sys.argv[4]
     test_file = sys.argv[5]
 
-    # nb = Classifier(vocab, n, smoothing_value)
-    nb = CustomizedModel(vocab, n, smoothing_value)
+    nb = Classifier(vocab, n, smoothing_value)
+    # nb = CustomizedModel(vocab, n, smoothing_value)
     nb.train(training_file)
     nb.test(test_file)
     Evaluation(nb)

@@ -19,22 +19,25 @@ class CustomizedModel(Classifier):
         for ngram in ngram_list:
             conditional_prob += self.conditional_probability(ngram, lang)
 
-        return self.frequency_of_words(lang, str) * (prior_prob + conditional_prob)
+        return self.get_frequency_of_clues(lang, tweet_list) * 0.2 * (prior_prob + conditional_prob)
 
-    def frequency_of_words(self, lang, sentence):
-        count = {}
-        sentence = sentence.split("")
-
-        for i in sentence:
-            if i in count:  # check if it exists in dictionary
-                count[i] += 1
-            else:
-                count[i] = 1  # first occurrence of character
-
-        frequency = 0
+    def get_frequency_of_clues(self, lang, tweet_list):
+        count = self.get_sentence_character_frequency(tweet_list)
+        frequency_of_clues = 0
 
         for lang in self.cluesDb:
             for clue in self.cluesDb[lang]:
-                frequency += count.get(clue, 0)
+                frequency_of_clues += count.get(clue, 0)
 
-        return frequency
+        return frequency_of_clues
+
+    def get_sentence_character_frequency(self, tweet_list: list):
+        count ={}
+        for tweet_word in tweet_list:
+            list_of_characters = tweet_word.split()
+            for character in list_of_characters:
+                if character in count:  # check if it exists in dictionary
+                    count[tweet_word] += 1
+                else:
+                    count[tweet_word] = 1  # first occurrence of character
+        return count
