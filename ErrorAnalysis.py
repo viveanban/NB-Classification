@@ -12,7 +12,7 @@ class ErrorAnalysis:
         print("Error Analysis started")
         Path("Outputs").mkdir(parents=True, exist_ok=True)
 
-        file_name = f'Outputs/EM{nb.vocab}_{nb.nGram_size}_{nb.smoothing_value}.txt'
+        file_name = f'Outputs/EM_{nb.vocab}_{nb.nGram_size}_{nb.smoothing_value}.txt'
         trace_file = nb.trace_file.name
         self.error_file = open(file_name, "w+")
         self.read_trace_file(trace_file)
