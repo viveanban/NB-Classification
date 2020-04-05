@@ -4,6 +4,7 @@ from GaussianNaiveBayesClassifier import Classifier
 
 frequency_of_guesses_per_language = dict()
 confusion_matrix = dict()
+languages = {"es", "eu", "ca", "gl", "en", "pt"}
 
 
 class ErrorAnalysis:
@@ -45,8 +46,21 @@ class ErrorAnalysis:
         file.close()
 
     def output_confusion_analysis(self):
-        for guess in confusion_matrix:
-            self.error_file.write(guess + ":  ")
-            for correct in confusion_matrix[guess]:
-                self.error_file.write(str(confusion_matrix[guess][correct]) + "-" + correct + "  ")
+        # print headers
+        self.error_file.write(",")
+        for lang in languages:
+            self.error_file.write(f'{lang},')
+        self.error_file.write("\n")
+
+        for guess in languages:
+            self.error_file.write(f'{guess},')
+            temp_map = confusion_matrix.get(guess, -1)
+            if temp_map == -1:
+                self.error_file.write("0,0,0,0,0,0\n")
+                continue
+            for correct in languages:
+                res = dict(temp_map).get(correct, 0) * 100
+                self.error_file.write(f'{res},')
             self.error_file.write("\n")
+
+        self.error_file.close()

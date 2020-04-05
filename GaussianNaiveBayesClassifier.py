@@ -47,7 +47,6 @@ class Classifier:
             language_model = ngram_frequency_per_language.get(language, 0)
 
             if language_model == 0:
-
                 ngram_frequency_per_language[language] = dict()
 
             # Update frequency table
@@ -73,6 +72,8 @@ class Classifier:
             return str(char).isalpha()
         elif self.vocab == 3:
             return 97 <= ord(char) <= 122 or string.punctuation.__contains__(char)
+        elif self.vocab == 4:
+            return 97 <= ord(char) <= 122 or str(char).isalpha() or string.punctuation.__contains__(char)
 
     def test(self, test_file):
         print("Testing started")
@@ -130,7 +131,7 @@ class Classifier:
 
         for word in tweet_list:
 
-            if self.vocab == 0 or self.vocab == 3:
+            if self.vocab == 0 or self.vocab == 3 or self.vocab == 4:
                 word = word.lower()
 
             for index in range(0, len(word)):
@@ -183,6 +184,8 @@ class Classifier:
             return math.pow(116766, self.nGram_size)
         elif self.vocab == 3:
             return math.pow(26 + 32, self.nGram_size)
+        elif self.vocab == 4:
+            return math.pow(26 + 32 + 116766, self.nGram_size)
 
     def trace_output(self, id, guessed_label, score, correct_label):
         annotation = "correct" if guessed_label.__eq__(correct_label) else "wrong"
