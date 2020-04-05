@@ -1,9 +1,9 @@
 import GaussianNaiveBayesClassifier
 
-
 class CustomizedModel(GaussianNaiveBayesClassifier):
 
-    def __init__(self, original_text):
+    def __init__(self, vocab, nGram_size, smoothing_value):
+        super().__init__(vocab, nGram_size, smoothing_value)
         self.cluesDb = dict()
         self.cluesDb["es"] = {"é", "á", "ó", "ú", "ü", "í", "ü", "ñ"}
         self.cluesDb["fr"] = {"ç", "à", "è", "î", "û", "ô", "ö", "ï", "ü", "ù", "`"}

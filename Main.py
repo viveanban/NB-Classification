@@ -4,7 +4,7 @@ from ErrorAnalysis import ErrorAnalysis
 
 
 def main():
-    nb = Classifier(2, 3, 0.05)
+    nb = Classifier(1, 2, 1)
     nb.train("training.txt")
     nb.test("test.txt")
     Evaluation(nb)
