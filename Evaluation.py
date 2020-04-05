@@ -72,7 +72,7 @@ class Evaluation:
         for lang in languages:
             precision = self.get_precision_for_language(lang)
             precision_per_language[lang] = precision
-            result += "{:.2E}".format(precision)+f'-{lang}  '
+            result += "{:.2E}".format(precision) + '  '
         result = result.rstrip()
         self.eval_file.write(result + "\n")
 
@@ -85,7 +85,7 @@ class Evaluation:
         for lang in languages:
             recall = self.get_recall_for_language(lang)
             recall_per_language[lang] = recall
-            result += "{:.2E}".format(recall)+f'-{lang}  '
+            result += "{:.2E}".format(recall) + '  '
 
         result = result.rstrip()
         self.eval_file.write(result + "\n")
@@ -99,7 +99,7 @@ class Evaluation:
         for lang in languages:
             f1 = self.get_f_1_for_language(lang)
             f1_per_language[lang] = f1
-            result += "{:.2E}".format(f1)+f'-{lang}  '
+            result += "{:.2E}".format(f1) + '  '
 
         result = result.rstrip()
         self.eval_file.write(result + "\n")
