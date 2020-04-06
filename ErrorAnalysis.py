@@ -4,7 +4,7 @@ from GaussianNaiveBayesClassifier import Classifier
 
 frequency_of_guesses_per_language = dict()
 confusion_matrix = dict()
-languages = {"es", "eu", "ca", "gl", "en", "pt"}
+languages = ["es", "eu", "ca", "gl", "en", "pt"]
 
 
 class ErrorAnalysis:

@@ -5,7 +5,7 @@ nb_correct_guesses = 0
 nb_total_guesses = 0
 
 # TODO: Generate those languages automatically, not hardcoded
-languages = {"eu", "ca", "gl", "es", "en", "pt"}
+languages = ["eu", "ca", "gl", "es", "en", "pt"]
 
 true_pos = dict()
 false_pos = dict()
